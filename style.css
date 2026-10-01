@@ -17,3 +17,5 @@
 .compact-counter strong{min-width:42px;font-size:14px}
 @media(max-width:600px){.cycle-adjustments{gap:10px;justify-content:space-between;padding:8px}.adjust-item{gap:6px}.adjust-item>span{font-size:11px}.adjust-divider{display:none}.compact-counter button{width:28px;height:27px}.compact-counter strong{min-width:36px;font-size:13px}}
 @media(max-width:420px){.cycle-adjustments{flex-direction:column;align-items:stretch}.adjust-item{justify-content:space-between}}
+
+.week-setting{display:flex;align-items:center;gap:8px;margin-top:5px}.week-setting label{font-size:12px;color:#68717d}.week-setting select{font:inherit;font-size:12px;padding:4px 7px;border:1px solid #ccd2d8;border-radius:7px;background:white;color:#303943;cursor:pointer}
