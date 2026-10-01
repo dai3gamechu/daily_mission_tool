@@ -15,6 +15,12 @@
     <div id="dailyDone" class="complete hidden">🎉 今日のミッション完了！</div>
   </section>
 
+  <section class="card extra">
+    <div class="section-head"><div><h2>今日だけの追加ミッション</h2><p>翌朝9時に自動削除</p></div></div>
+    <form id="addForm"><input id="newTask" maxlength="40" placeholder="例：資源を回収" autocomplete="off"><button>＋ 追加</button></form>
+    <div id="extraTasks" class="tasks compact"></div>
+  </section>
+
   <section class="card gold">
     <div class="section-head"><div><h2>今週のGold購入</h2><p>土曜日スタート</p></div><strong id="goldScore"></strong></div>
     <div id="weekGrid" class="week-grid"></div>
@@ -37,12 +43,6 @@
       <div class="adjust-item"><span>達成回数補正</span><div class="counter compact-counter"><button id="cycleMinus" type="button" aria-label="達成回数を1減らす">－</button><strong id="cycleManualCount">0回</strong><button id="cyclePlus" type="button" aria-label="達成回数を1増やす">＋</button></div></div>
     </div>
     <p id="cycleNote" class="note"></p>
-  </section>
-
-  <section class="card extra">
-    <div class="section-head"><div><h2>今日だけの追加ミッション</h2><p>翌朝9時に自動削除</p></div></div>
-    <form id="addForm"><input id="newTask" maxlength="40" placeholder="例：資源を回収" autocomplete="off"><button>＋ 追加</button></form>
-    <div id="extraTasks" class="tasks compact"></div>
   </section>
 
   <section class="card data-management">
