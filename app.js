@@ -1,5 +1,5 @@
 const KEY='dai3_daily_mission_v1';
-const FIXED=[['gold','Gold購入'],['truck','トラック 4台'],['raid','トラックレイド 5回'],['arena','終末のアリーナ']]];
+const FIXED=[['gold','Gold購入'],['truck','トラック 4台'],['raid','トラックレイド 5回']];
 const DEFAULT_TARGET=25, CYCLE_DAYS=30, CYCLE_ANCHOR=new Date(2026,9,5,9,0,0);
 const $=id=>document.getElementById(id);
 const pad=n=>String(n).padStart(2,'0');
@@ -9,7 +9,7 @@ function missionDate(now=new Date()){let d=new Date(now);if(d.getHours()<9)d.set
 function weekStart(d){let x=new Date(d),dow=x.getDay(),back=(dow-Number(state.settings.weekStart)+7)%7;x.setDate(x.getDate()-back);x.setHours(9,0,0,0);return x}
 function cycleFor(d){let diff=Math.floor((d-CYCLE_ANCHOR)/86400000);let idx=Math.floor(diff/CYCLE_DAYS);let start=new Date(CYCLE_ANCHOR);start.setDate(start.getDate()+idx*CYCLE_DAYS);let end=new Date(start);end.setDate(end.getDate()+29);return {start,end,idx}}
 function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch{return {}}}
-let state=load();state.days??={};state.cycle??={};state.settings??={};state.settings.cycleTarget??=DEFAULT_TARGET;state.settings.weekStart??=6;state.settings.customDaily??=[['truck','トラック 4台'],['raid','トラックレイド 5回']].map(([id,name])=>({id,name}));
+let state=load();state.days??={};state.cycle??={};state.settings??={};state.settings.cycleTarget??=DEFAULT_TARGET;state.settings.weekStart??=6;state.settings.customDaily??=[['truck','トラック 4台'],['raid','トラックレイド 5回'],['arena','終末のアリーナ']].map(([id,name])=>({id,name}));
 function save(){localStorage.setItem(KEY,JSON.stringify(state))}
 function dayData(k){state.days[k]??={fixed:{},extras:[]};state.days[k].fixed??={};state.days[k].extras??=[];return state.days[k]}
 function normalize(){const md=missionDate(),k=dateKey(md);dayData(k);save();return md}
@@ -47,7 +47,7 @@ function restoreData(file){
    const restored=parsed?.app==='dai3_daily_mission' ? parsed.state : parsed;
    if(!restored || typeof restored!=='object' || Array.isArray(restored))throw new Error('invalid');
    if(!confirm('現在の保存データを、このバックアップの内容で置き換えます。よろしいですか？'))return;
-   state=restored;state.days??={};state.cycle??={};state.settings??={};state.settings.cycleTarget??=DEFAULT_TARGET;state.settings.weekStart??=6;state.settings.customDaily??=[['truck','トラック 4台'],['raid','トラックレイド 5回']].map(([id,name])=>({id,name}));save();render();alert('バックアップから復元しました。');
+   state=restored;state.days??={};state.cycle??={};state.settings??={};state.settings.cycleTarget??=DEFAULT_TARGET;state.settings.weekStart??=6;state.settings.customDaily??=[['truck','トラック 4台'],['raid','トラックレイド 5回'],['arena','終末のアリーナ']].map(([id,name])=>({id,name}));save();render();alert('バックアップから復元しました。');
   }catch{alert('このファイルは有効なバックアップではありません。')}
   $('restoreFile').value='';
  };
