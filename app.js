@@ -1,5 +1,5 @@
 const KEY='dai3_daily_mission_v1';
-const FIXED=[['gold','Gold購入'],['truck','トラック 4台'],['raid','トラックレイド 5回'],['arena','終末のアリーナ 5回']];
+const FIXED=[['gold','Gold購入'],['truck','トラック 4台'],['raid','トラックレイド 5回'],['arena','終末のアリーナ']]];
 const DEFAULT_TARGET=25, CYCLE_DAYS=30, CYCLE_ANCHOR=new Date(2026,9,5,9,0,0);
 const $=id=>document.getElementById(id);
 const pad=n=>String(n).padStart(2,'0');
@@ -9,15 +9,16 @@ function missionDate(now=new Date()){let d=new Date(now);if(d.getHours()<9)d.set
 function weekStart(d){let x=new Date(d),dow=x.getDay(),back=(dow-Number(state.settings.weekStart)+7)%7;x.setDate(x.getDate()-back);x.setHours(9,0,0,0);return x}
 function cycleFor(d){let diff=Math.floor((d-CYCLE_ANCHOR)/86400000);let idx=Math.floor(diff/CYCLE_DAYS);let start=new Date(CYCLE_ANCHOR);start.setDate(start.getDate()+idx*CYCLE_DAYS);let end=new Date(start);end.setDate(end.getDate()+29);return {start,end,idx}}
 function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch{return {}}}
-let state=load();state.days??={};state.cycle??={};state.settings??={};state.settings.cycleTarget??=DEFAULT_TARGET;state.settings.weekStart??=6;
+let state=load();state.days??={};state.cycle??={};state.settings??={};state.settings.cycleTarget??=DEFAULT_TARGET;state.settings.weekStart??=6;state.settings.customDaily??=[['truck','トラック 4台'],['raid','トラックレイド 5回']].map(([id,name])=>({id,name}));
 function save(){localStorage.setItem(KEY,JSON.stringify(state))}
 function dayData(k){state.days[k]??={fixed:{},extras:[]};state.days[k].fixed??={};state.days[k].extras??=[];return state.days[k]}
 function normalize(){const md=missionDate(),k=dateKey(md);dayData(k);save();return md}
 function render(){const md=normalize(),k=dateKey(md),data=dayData(k);$('dateLabel').textContent=`${md.getFullYear()}年${md.getMonth()+1}月${md.getDate()}日`;
  const ws=weekStart(md),we=new Date(ws);we.setDate(we.getDate()+6);$('periodLabel').textContent=`今週 ${fmt(ws)} ～ ${fmt(we)}`;
- $('weekStartSelect').value=String(state.settings.weekStart);renderDaily(md,data);renderWeek(md);renderCycle(md);renderExtras(md,data)}
-function renderDaily(md,data){const box=$('dailyTasks');box.innerHTML='';FIXED.forEach(([id,name])=>{let row=document.createElement('label');row.className='task'+(data.fixed[id]?' done':'');row.innerHTML=`<input type="checkbox" ${data.fixed[id]?'checked':''}><span class="task-name">${name}</span>`;row.querySelector('input').onchange=e=>{data.fixed[id]=e.target.checked;save();render()};box.append(row)});
- let done=FIXED.filter(([id])=>data.fixed[id]).length,total=FIXED.length;$('dailyCount').textContent=`${done} / ${total} 達成`;$('dailyDone').classList.toggle('hidden',done!==total)}
+ $('weekStartSelect').value=String(state.settings.weekStart);renderDaily(md,data);renderCustomDaily();renderWeek(md);renderCycle(md);renderExtras(md,data)}
+function renderDaily(md,data){const box=$('dailyTasks');box.innerHTML='';const dailyTasks=[FIXED[0],...state.settings.customDaily.map(t=>[t.id,t.name])];dailyTasks.forEach(([id,name])=>{let row=document.createElement('label');row.className='task'+(data.fixed[id]?' done':'');row.innerHTML=`<input type="checkbox" ${data.fixed[id]?'checked':''}><span class="task-name">${name}</span>`;row.querySelector('input').onchange=e=>{data.fixed[id]=e.target.checked;save();render()};box.append(row)});
+ let done=dailyTasks.filter(([id])=>data.fixed[id]).length,total=dailyTasks.length;$('dailyCount').textContent=`${done} / ${total} 達成`;$('dailyDone').classList.toggle('hidden',done!==total)}
+function renderCustomDaily(){const list=$('customDailyList');list.innerHTML='';state.settings.customDaily.forEach(t=>{const row=document.createElement('div');row.className='custom-daily-row';const name=document.createElement('span');name.textContent=t.name;const del=document.createElement('button');del.type='button';del.textContent='削除';del.onclick=()=>{if(!confirm('「'+t.name+'」を毎日の日課から削除しますか？'))return;state.settings.customDaily=state.settings.customDaily.filter(x=>x.id!==t.id);save();render()};row.append(name,del);list.append(row)})}
 function renderWeek(md){const ws=weekStart(md),grid=$('weekGrid');grid.innerHTML='';let achieved=0,elapsed=0;Array.from({length:7},(_,i)=>['日','月','火','水','木','金','土'][(Number(state.settings.weekStart)+i)%7]).forEach((dow,i)=>{let d=new Date(ws);d.setDate(d.getDate()+i);let k=dateKey(d),isToday=k===dateKey(md),past=d<md,ok=!!state.days[k]?.fixed?.gold;let mark,cls;if(ok){mark='✓';cls='ok';achieved++}else if(past){mark='×';cls='miss'}else if(isToday){mark='●';cls='current'}else{mark='－';cls='future'}if(past||isToday)elapsed++;let el=document.createElement('div');el.className=`day ${cls}${isToday?' today':''}`;el.innerHTML=`<div class="dow">${dow}</div><div class="mark">${mark}</div><small>${fmt(d)}</small>`;grid.append(el)});$('goldScore').textContent=`${achieved} / ${elapsed}日達成`}
 function renderCycle(md){const c=cycleFor(md),ck=dateKey(c.start);state.cycle[ck]??={days:{}};let rec=state.cycle[ck];rec.days??={};rec.manualAdjustment??=0;let target=Math.max(1,Math.min(CYCLE_DAYS,Number(state.settings.cycleTarget)||DEFAULT_TARGET));state.settings.cycleTarget=target;let today=dateKey(md),autoCount=Object.values(rec.days).filter(Boolean).length,count=Math.max(0,Math.min(CYCLE_DAYS,autoCount+rec.manualAdjustment)),dayNo=Math.floor((md-c.start)/86400000)+1;dayNo=Math.max(1,Math.min(CYCLE_DAYS,dayNo));let doneToday=!!rec.days[today],daysLeft=CYCLE_DAYS-dayNo+1,remainingOpportunities=Math.max(0,daysLeft-(doneToday?1:0)),needed=Math.max(0,target-count),grace=remainingOpportunities-needed;
  $('cycleDates').textContent=`${fmt(c.start)} ～ ${fmt(c.end)}（30日間）`;$('cycleCount').textContent=`${count} / ${target}日 達成`;$('progressBar').style.width=`${Math.min(100,count/target*100)}%`;$('daysLeft').textContent=`${remainingOpportunities}日`;$('needed').textContent=`あと${needed}回`;$('grace').textContent=needed===0?'達成済み':grace>=0?`${grace}日`:`${Math.abs(grace)}回不足`;
@@ -46,7 +47,7 @@ function restoreData(file){
    const restored=parsed?.app==='dai3_daily_mission' ? parsed.state : parsed;
    if(!restored || typeof restored!=='object' || Array.isArray(restored))throw new Error('invalid');
    if(!confirm('現在の保存データを、このバックアップの内容で置き換えます。よろしいですか？'))return;
-   state=restored;state.days??={};state.cycle??={};state.settings??={};state.settings.cycleTarget??=DEFAULT_TARGET;state.settings.weekStart??=6;save();render();alert('バックアップから復元しました。');
+   state=restored;state.days??={};state.cycle??={};state.settings??={};state.settings.cycleTarget??=DEFAULT_TARGET;state.settings.weekStart??=6;state.settings.customDaily??=[['truck','トラック 4台'],['raid','トラックレイド 5回']].map(([id,name])=>({id,name}));save();render();alert('バックアップから復元しました。');
   }catch{alert('このファイルは有効なバックアップではありません。')}
   $('restoreFile').value='';
  };
@@ -54,6 +55,8 @@ function restoreData(file){
  reader.readAsText(file);
 }
 $('weekStartSelect').onchange=e=>{state.settings.weekStart=Number(e.target.value);save();render()};
+$('editDailyBtn').onclick=()=>{const editor=$('dailyEditor');editor.classList.toggle('hidden');$('editDailyBtn').setAttribute('aria-expanded',String(!editor.classList.contains('hidden')))};
+$('customDailyForm').onsubmit=e=>{e.preventDefault();const input=$('customDailyName'),name=input.value.trim();if(!name)return;const id='custom_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);state.settings.customDaily.push({id,name});input.value='';save();render()};
 $('backupBtn').onclick=backupData;
 $('restoreBtn').onclick=()=>$('restoreFile').click();
 $('restoreFile').onchange=e=>{const file=e.target.files?.[0];if(file)restoreData(file)};

@@ -12,6 +12,8 @@
   <section class="card daily">
     <div class="section-head"><div><h2>今日のミッション</h2><p>9:00 ～ 翌日 8:59</p></div><div id="dailyCount" class="badge"></div></div>
     <div id="dailyTasks" class="tasks"></div>
+    <button id="editDailyBtn" type="button" class="daily-edit-toggle" aria-expanded="false">⚙ 日課を編集</button>
+    <div id="dailyEditor" class="daily-editor hidden"><p>Gold購入は週間履歴と連動するため固定です。</p><div id="customDailyList"></div><form id="customDailyForm"><input id="customDailyName" maxlength="40" placeholder="毎日表示するミッション名" required><button type="submit">＋ 登録</button></form></div>
     <div id="dailyDone" class="complete hidden">🎉 今日のミッション完了！</div>
   </section>
 
@@ -28,7 +30,7 @@
   </section>
 
   <section class="card cycle">
-    <div class="section-head"><div><h2>ゴールド保管庫</h2><p id="cycleDates"></p></div><div id="cycleStatus" class="badge"></div></div>
+    <div class="section-head"><div><h2>30日サイクルミッション</h2><p id="cycleDates"></p></div><div id="cycleStatus" class="badge"></div></div>
     <div class="cycle-title"><strong>アイテム購入</strong><span id="cycleCount"></span></div>
     <div class="progress"><div id="progressBar"></div></div>
     <div class="cycle-info">
